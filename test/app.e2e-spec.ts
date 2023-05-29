@@ -148,9 +148,16 @@ describe('App e2e', () => {
           .expectBodyContains(dto.email)
           .expectBodyContains(dto.firstName);
       });
-      it.todo(
-        'should throw a ForbiddenException when the user is not authenticated',
-      );
+      it('should throw a ForbiddenException when the user is not authenticated', () => {
+        return pactum.spec().patch('/users').withBody(dto).expectStatus(401);
+      });
+      it('should throw a ForbiddenException when the email is invalid', () => {
+        return pactum
+          .spec()
+          .patch('/users')
+          .withBody({ ...dto, email: 'test' })
+          .expectStatus(401);
+      });
     });
   });
 
