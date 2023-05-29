@@ -47,16 +47,19 @@ export class AuthService {
     if (!pwMatches) {
       throw new ForbiddenException('Wrong credentials');
     }
-    const secret = await this.signToken(user.id, user.email);
-    return { access_token: secret };
+    return this.signToken(user.id, user.email);
   }
 
   async signToken(userId: number, email: string) {
     const payload = { sub: userId, email };
     const secret = this.config.get<string>('JWT_SECRET');
-    return this.jwt.signAsync(payload, {
+    const token = await this.jwt.signAsync(payload, {
       expiresIn: '30m',
       secret,
     });
+
+    return {
+      access_token: token,
+    };
   }
 }
