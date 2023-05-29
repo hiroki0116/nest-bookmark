@@ -32,34 +32,103 @@ describe('App e2e', () => {
 
   describe('Auth', () => {
     describe('Signup', () => {
+      const dto: AuthDto = {
+        email: 'test@test.com',
+        password: 'password1234',
+      };
       it('should create a user', () => {
-        const dto: AuthDto = {
-          email: 'test@test.com',
-          password: 'password1234',
-        };
         return pactum
           .spec()
           .post('/auth/signup')
           .withBody(dto)
           .expectStatus(201);
       });
+
+      it('should throw a ForbiddenException when the email is invalid', () => {
+        return pactum
+          .spec()
+          .post('/auth/signup')
+          .withBody({
+            ...dto,
+            email: 'test',
+          })
+          .expectStatus(400);
+      });
+
+      it('should throw a ForbiddenException when the password is empty', () => {
+        return pactum
+          .spec()
+          .post('/auth/signup')
+          .withBody({
+            ...dto,
+            password: '',
+          });
+      });
     });
+
     describe('Login', () => {
-      it.todo(
-        'should return a token and the user data when the credentials are correct',
-      );
-      it.todo(
-        'should throw a ForbiddenException when the credentials are incorrect',
-      );
+      const dto: AuthDto = {
+        email: 'test@test.com',
+        password: 'password1234',
+      };
+      it('should return a token when the credentials are correct', () => {
+        return pactum
+          .spec()
+          .post('/auth/login')
+          .withBody(dto)
+          .expectStatus(200)
+          .expectJsonLike({
+            access_token: /.*/,
+          })
+          .stores('token', 'access_token');
+      });
+      it('should throw a ForbiddenException when the email is invalid', () => {
+        return pactum
+          .spec()
+          .post('/auth/login')
+          .withBody({
+            ...dto,
+            email: 'test',
+          })
+          .expectStatus(400);
+      });
+      it('should throw a ForbiddenException when the password is empty', () => {
+        return pactum
+          .spec()
+          .post('/auth/login')
+          .withBody({
+            ...dto,
+            password: '',
+          })
+          .expectStatus(400);
+      });
+      it("should throw a ForbiddenException when the user doesn't exist", () => {
+        return pactum
+          .spec()
+          .post('/auth/login')
+          .withBody({
+            email: 'wrong@test.com',
+            password: 'password1234',
+          })
+          .expectStatus(403);
+      });
     });
   });
 
   describe('User', () => {
     describe('Get me', () => {
-      it.todo('should return the user data when the user is authenticated');
-      it.todo(
-        'should throw a ForbiddenException when the user is not authenticated',
-      );
+      it('should return the user data', () => {
+        return pactum
+          .spec()
+          .get('/users/me')
+          .withHeaders({
+            Authorization: `Bearer $S{token}`,
+          })
+          .expectStatus(200);
+      });
+      it('should throw a ForbiddenException when the user is not authenticated', () => {
+        return pactum.spec().get('/users/me').expectStatus(401);
+      });
     });
     describe('Edit user', () => {
       it.todo(
