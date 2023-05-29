@@ -10,5 +10,15 @@ services:
       POSTGRES_DB: bookmark
     networks:
       - bookmark
+  test-db:
+    image: postgres:13
+    ports:
+      - 5435:5432
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: bookmark
+    networks:
+      - bookmark
 networks:
   bookmark:
