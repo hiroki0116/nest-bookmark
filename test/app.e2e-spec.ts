@@ -131,9 +131,23 @@ describe('App e2e', () => {
       });
     });
     describe('Edit user', () => {
-      it.todo(
-        'should return the updated user data when the user is authenticated',
-      );
+      const dto = {
+        email: 'updated@gmail.com',
+        firstName: 'mr.testman',
+      };
+
+      it('should return the updated user', () => {
+        return pactum
+          .spec()
+          .patch('/users')
+          .withHeaders({
+            Authorization: `Bearer $S{token}`,
+          })
+          .withBody(dto)
+          .expectStatus(200)
+          .expectBodyContains(dto.email)
+          .expectBodyContains(dto.firstName);
+      });
       it.todo(
         'should throw a ForbiddenException when the user is not authenticated',
       );
